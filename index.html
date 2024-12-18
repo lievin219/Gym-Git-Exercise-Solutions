@@ -1,0 +1,256 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Page</title>
+  <style>
+    /* Basic styling for layout, grid, and error messages */
+  </style>
+</head>
+<body>
+  <h1>Product Page</h1>
+  <div id="loading">Loading...</div>
+  <div id="error" style="display: none; color: red;"></div>
+  <button id="retry" style="display: none;">Retry</button>
+  <div id="products" class="product-grid"></div>
+  
+  <script>
+    const API_URL = "https://fakestoreapi.com/products";
+    
+    async function fetchProducts() {
+      const loading = document.getElementById("loading");
+      const error = document.getElementById("error");
+      const retry = document.getElementById("retry");
+      const productsDiv = document.getElementById("products");
+
+      loading.style.display = "block";
+      error.style.display = "none";
+      retry.style.display = "none";
+      productsDiv.innerHTML = "";
+
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error("API Error");
+        const products = await response.json();
+        products.forEach(product => {
+          const productEl = document.createElement("div");
+          productEl.innerHTML = `<h3>${product.title}</h3><img src="${product.image}" alt="${product.title}" />`;
+          productsDiv.appendChild(productEl);
+        });
+      } catch (err) {
+        error.style.display = "block";
+        error.textContent = "Failed to fetch products. Please try again.";
+        retry.style.display = "block";
+        console.error(err);
+      } finally {
+        loading.style.display = "none";
+      }
+    }
+
+    document.getElementById("retry").addEventListener("click", fetchProducts);
+
+    // Initial fetch
+    // fetchProducts();
+  </script>
+</body>
+</html> -->
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Storage Product Showcase</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .product { border: 1px solid #ddd; padding: 10px; margin: 10px; }
+    .product img { max-width: 100px; }
+    .product-list { display: flex; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <h1>Product Showcase</h1>
+  
+  <form id="productForm">
+    <label>
+      Product Name:
+      <input type="text" id="productName" required>
+    </label>
+    <label>
+      Price:
+      <input type="number" id="productPrice" required>
+    </label>
+    <label>
+      Image URL:
+      <input type="url" id="productImage" required>
+    </label>
+    <button type="submit">Add Product</button>
+  </form>
+
+  <h2>Products</h2>
+  <div id="productList" class="product-list"></div>
+  <button id="clearAll">Clear All Products</button>
+
+  <script>
+    const productForm = document.getElementById("productForm");
+    const productList = document.getElementById("productList");
+    const clearAllButton = document.getElementById("clearAll");
+
+    function loadProducts() {
+      const products = JSON.parse(localStorage.getItem("products")) || [];
+      productList.innerHTML = ""; // Clear current display
+      products.forEach((product, index) => {
+        const productDiv = document.createElement("div");
+        productDiv.className = "product";
+        productDiv.innerHTML = `
+          <h3>${product.name}</h3>
+          <p>Price: $${product.price}</p>
+          <img src="${product.image}" alt="${product.name}">
+          <button onclick="deleteProduct(${index})">Delete</button>
+        `;
+        productList.appendChild(productDiv);
+      });
+    }
+
+    function saveProduct(product) {
+      const products = JSON.parse(localStorage.getItem("products")) || [];
+      products.push(product);
+      localStorage.setItem("products", JSON.stringify(products));
+    }
+
+    function deleteProduct(index) {
+      const products = JSON.parse(localStorage.getItem("products")) || [];
+      products.splice(index, 1);
+      localStorage.setItem("products", JSON.stringify(products));
+      loadProducts();
+    }
+
+    function clearAllProducts() {
+      localStorage.removeItem("products");
+      loadProducts();
+    }
+
+    productForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = document.getElementById("productName").value;
+      const price = document.getElementById("productPrice").value;
+      const image = document.getElementById("productImage").value;
+      saveProduct({ name, price, image });
+      productForm.reset();
+      loadProducts();
+    });
+
+    clearAllButton.addEventListener("click", clearAllProducts);
+
+    // Load products on page load
+    loadProducts(); -->
+
+    <!DOCTYPE html>
+    <html lang="en">
+
+
+
+
+
+         
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>JSONPlaceholder Product Showcase</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .product, .favorite { border: 1px solid #ddd; padding: 10px; margin: 10px; }
+        .product-list, .favorites-list { display: flex; flex-wrap: wrap; }
+        h2 { margin-top: 30px; }
+      </style>
+    </head>
+    <body>
+      <h1>Product Showcase</h1>
+      <div id="loading">Loading products...</div>
+      <div id="productList" class="product-list"></div>
+    
+      <h2>Favorites</h2>
+      <div id="favoritesList" class="favorites-list"></div>
+    
+      <script>
+        const API_URL = "https://jsonplaceholder.typicode.com/posts";
+        const productList = document.getElementById("productList");
+        const favoritesList = document.getElementById("favoritesList");
+        const loading = document.getElementById("loading");
+    
+        // Fetch products (posts) from API
+        async function fetchProducts() {
+          try {
+            loading.style.display = "block";
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+            const products = await response.json();
+            displayProducts(products.slice(0, 10)); // Limit to 10 items
+          } catch (error) {
+            console.error("Error fetching products:", error);
+            productList.innerHTML = "<p>Failed to load products.</p>";
+          } finally {
+            loading.style.display = "none";
+          }
+        }
+    
+        // Display products
+        function displayProducts(products) {
+          productList.innerHTML = ""; // Clear the list
+          products.forEach(product => {
+            const productDiv = document.createElement("div");
+            productDiv.className = "product";
+            productDiv.innerHTML = `
+              <h3>${product.title}</h3>
+              <p>${product.body}</p>
+              <button onclick="saveToFavorites(${product.id}, '${product.title}', '${product.body}')">Save to Favorites</button>
+            `;
+            productList.appendChild(productDiv);
+          });
+        }
+    
+        // Save product to local storage
+        function saveToFavorites(id, title, body) {
+          const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+          if (!favorites.some(fav => fav.id === id)) {
+            favorites.push({ id, title, body });
+            localStorage.setItem("favorites", JSON.stringify(favorites));
+            loadFavorites();
+          } else {
+            alert("Product is already in favorites.");
+          }
+        }
+    
+        // Load favorites from local storage
+        function loadFavorites() {
+          const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+          favoritesList.innerHTML = ""; // Clear the list
+          favorites.forEach(favorite => {
+            const favoriteDiv = document.createElement("div");
+            favoriteDiv.className = "favorite";
+            favoriteDiv.innerHTML = `
+              <h3>${favorite.title}</h3>
+              <p>${favorite.body}</p>
+              <button onclick="removeFromFavorites(${favorite.id})">Remove from Favorites</button>
+            `;
+            favoritesList.appendChild(favoriteDiv);
+          });
+        }
+    
+        // Remove product from favorites
+        function removeFromFavorites(id) {
+          let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+          favorites = favorites.filter(fav => fav.id !== id);
+          localStorage.setItem("favorites", JSON.stringify(favorites));
+          loadFavorites();
+        }
+    
+        // Load products and favorites on page load
+        fetchProducts();
+        loadFavorites();
+      </script>
+    </body>
+    </html>
+    
+
